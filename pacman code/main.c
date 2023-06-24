@@ -22,22 +22,19 @@
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 */
+#include <stdio.h>
 #include <avr/io.h>
 #include <util/delay.h>
 #include "nokia5110.h"
 
 uint8_t glyph[] = {0b00010000, 0b00100100, 0b11100000, 0b00100100, 0b00010000};
-uint8_t gameMap[5][14] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
+uint8_t gameMap[6][14] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
 						  {1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
 						  {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
 						  {1, 0, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-						  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+						  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+						  {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5}};
 
-uint8_t gameMap2[5][14] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
-						  {1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-						  {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-						  {1, 0, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-						  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 int i = 0;
 int j = 0;
 uint8_t chao = 0;	  // espaço -> .
@@ -45,6 +42,7 @@ uint8_t parede = 1;	  // []
 uint8_t fantasma = 2; // $
 uint8_t pacman = 3;	  // circulo
 uint8_t comida = 4;	  // 0
+uint8_t textArea = 5;
 double tempo = 0.0;
 int posX = 2;
 int posY = 0;
@@ -54,6 +52,7 @@ int vidas= 3;
 int morte = 0;
 int derrota = 0;
 int temp= 0;
+
 
 int botaoA()
 {
@@ -111,7 +110,7 @@ void printaTela()
 {
 	nokia_lcd_clear();
 	int colTela = 0;
-	for (int x = 0; x < 5; x++)
+	for (int x = 0; x < 6; x++)
 	{
 		colTela = x * 9;
 		nokia_lcd_set_cursor(0, colTela);
@@ -141,6 +140,14 @@ void printaTela()
 			{
 				nokia_lcd_write_string(" ", 1); // espaço
 			}
+			if (gameMap[x][y] == 5)
+			{
+				if((x == 5) && (y ==0)){
+					// char score[8] = "score :";
+					// strcat(score, pontos);
+					nokia_lcd_write_string("score :" , 1);
+				}
+			}
 		}
 	}
 	// Linhas pra demilitar o mapa :
@@ -154,7 +161,7 @@ void printaTela()
 
 void inserePacman()
 {
-	for (int x = 0; x < 5; x++)
+	for (int x = 0; x < 6; x++)
 	{
 		for (int y = 0; y < 14; y++)
 		{
@@ -237,7 +244,7 @@ int main(void)
 	}
 	*/
 
-	while (temp == 1)
+	while (1)
 	{
 		if (botaoW() == 1)
 		{
@@ -272,7 +279,7 @@ int main(void)
 			if (gameMap[posX][posY + 1] != 1 && gameMap[posX][posY + 1] != 2)
 			{
 				if(gameMap[posX][posY + 1] == 0){
-					pontos++;
+					pontos+= 10;
 				}
 				posY++;
 				inserePacman();
@@ -296,7 +303,7 @@ int main(void)
 			}
 		}
 	}
-	}
+}
 
 /*
 Fazer:

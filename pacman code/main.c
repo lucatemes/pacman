@@ -96,14 +96,15 @@ int botaoD()
 	return 0;
 }
 
-void printaTela(){
+void printaTela()
+{
 	nokia_lcd_clear();
-	int colTela= 0;
+	int colTela = 0;
 	for (int x = 0; x < 5; x++)
-	{	
-		colTela= x * 9;
+	{
+		colTela = x * 9;
 		nokia_lcd_set_cursor(0, colTela);
-			
+
 		for (int y = 0; y < 10; y++)
 		{
 			if (gameMap[x][y] == 0)
@@ -120,12 +121,12 @@ void printaTela(){
 			}
 			if (gameMap[x][y] == 3)
 			{
-				
+
 				nokia_lcd_write_string("@", 1); // pacman
 			}
 			if (gameMap[x][y] == 4)
 			{
-				
+
 				nokia_lcd_write_string(",", 1); // comidinha
 			}
 		}
@@ -133,21 +134,28 @@ void printaTela(){
 	nokia_lcd_render();
 }
 
-void inserePacman(){
+void inserePacman()
+{
 	for (int x = 0; x < 5; x++)
-	{		
+	{
 		for (int y = 0; y < 10; y++)
 		{
-			if(gameMap[x][y] == 3){
+			if (gameMap[x][y] == 3)
+			{
 				gameMap[x][y] = 0;
 			}
 		}
 	}
-	gameMap[posX][posY] = pacman; 
-
-
+	gameMap[posX][posY] = pacman;
 }
 
+void telaInicio()
+{
+	nokia_lcd_clear();
+	nokia_lcd_set_cursor(13, 15);
+	nokia_lcd_write_string("Inicie o jogo Apertando 'W'",1);
+	nokia_lcd_render();
+}
 
 int main(void)
 {
@@ -169,53 +177,83 @@ int main(void)
 	nokia_lcd_init();  // inicia painel
 	nokia_lcd_clear(); // clear no painel
 	nokia_lcd_custom(1, glyph);
-	printaTela();
+	telaInicio();
+	if(botaoW() == 1){
+		nokia_lcd_clear();
+		printaTela();	
+	}
+	//printaTela();
 	inserePacman(posX, posY);
 	printaTela();
-	//printaTela();
 	int morte = 0;
 
-		while (1)
-		{
-			
-				if (botaoW() == 1)
-				{
-					if(gameMap[posX][posY-1] != 1){
-						posY--;
-						inserePacman();
-						printaTela();
-					}
-				}
-				else if (botaoA() == 1)
-				{
-					if(gameMap[posX-1][posY] != 1){
-						posX--;
-						inserePacman();
-						printaTela();
-					}
-				}
-				else if (botaoS() == 1)
-				{
-					if(gameMap[posX][posY+1] != 1){
-						posY++;
-						inserePacman();
-						printaTela();
-					}
-				}
-				else if (botaoD() == 1)
-				{
-					if(gameMap[posX+1][posY] != 1){
-						posX++;
-						inserePacman();
-						printaTela();
-					}
-				}
-				if (morte == 1)
-				{
-					printaTela();
-					morte = 0;
-				}
-			}
+	while (1)
+	{
 
-		
+		if (botaoW() == 1)
+		{
+			if (gameMap[posX][posY - 1] != 1)
+			{
+				posY--;
+				inserePacman();
+				printaTela();
+			}
 		}
+		else if (botaoA() == 1)
+		{
+			if (gameMap[posX - 1][posY] != 1)
+			{
+				posX--;
+				inserePacman();
+				printaTela();
+			}
+		}
+		else if (botaoS() == 1)
+		{
+			if (gameMap[posX][posY + 1] != 1)
+			{
+				posY++;
+				inserePacman();
+				printaTela();
+			}
+		}
+		else if (botaoD() == 1)
+		{
+			if (gameMap[posX + 1][posY] != 1)
+			{
+				posX++;
+				inserePacman();
+				printaTela();
+			}
+			if (morte == 1)
+			{
+				_delay_ms(10000);
+				printaTela();
+				PORTD |= (1 << PD2);
+				_delay_ms(5000);
+				morte = 0;
+			}
+		}
+	}
+}
+
+/*
+Fazer:
+	MovimentaFastasmas()
+	Sistema de Morte
+	SuperPoderes
+	Contador de tempo e de pontos
+	Tela Final
+	Sistema de Leds  : Morte = Led vermelho acende por 5 s
+					   Vitória = Led verde acende por 5 s
+					   Amarelo/Azul = ?
+					 
+	Botão Start
+	Arrumar tela de inicio
+	Contabilizar tempo com timer   
+
+Colocar:
+	Timer
+	Circulo e Retângulos na lib do nokia pro jogo ficar + bonito
+
+*/

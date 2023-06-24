@@ -27,22 +27,22 @@
 #include "nokia5110.h"
 
 uint8_t glyph[] = {0b00010000, 0b00100100, 0b11100000, 0b00100100, 0b00010000};
-uint8_t gameMap[5][10] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
-						  {1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
-						  {0, 0, 1, 0, 0, 0, 0, 1, 0, 0},
-						  {1, 0, 2, 0, 0, 0, 0, 1, 0, 1},
-						  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+uint8_t gameMap[5][14] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
+						  {1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1},
+						  {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1},
+						  {1, 0, 2, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1},
+						  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 int i = 0;
 int j = 0;
 uint8_t chao = 0;	  // espaço -> .
 uint8_t parede = 1;	  // []
 uint8_t fantasma = 2; // $
-uint8_t pacman = 3;	  // @
+uint8_t pacman = 3;	  // circulo
 uint8_t comida = 4;	  // 0
+double tempo = 0.0;
 int posX = 2;
 int posY = 0;
 int contadorms = 0;
-int temp = 0;
 
 int botaoA()
 {
@@ -105,7 +105,7 @@ void printaTela()
 		colTela = x * 9;
 		nokia_lcd_set_cursor(0, colTela);
 
-		for (int y = 0; y < 10; y++)
+		for (int y = 0; y < 14; y++)
 		{
 			if (gameMap[x][y] == 0)
 			{
@@ -113,7 +113,9 @@ void printaTela()
 			}
 			if (gameMap[x][y] == 1)
 			{
-				nokia_lcd_write_string("/", 1); // parede
+				nokia_lcd_write_string("/",1);
+				// nokia_lcd_drawline(x,x,y,y);
+				// nokia_lcd_drawline(0,0,0,47);
 			}
 			if (gameMap[x][y] == 2)
 			{
@@ -121,16 +123,21 @@ void printaTela()
 			}
 			if (gameMap[x][y] == 3)
 			{
-
 				nokia_lcd_write_string("@", 1); // pacman
+				// nokia_lcd_drawcircle(1,1,3);
 			}
 			if (gameMap[x][y] == 4)
 			{
-
 				nokia_lcd_write_string(",", 1); // comidinha
 			}
 		}
 	}
+	// Linhas pra demilitar o mapa :
+	// nokia_lcd_drawline(0,84,0,0);
+	// nokia_lcd_drawline(0,84,40,40);
+	// Teste pra fazer retangulo :
+	//  nokia_lcd_drawrect(2,3,7,7); //TESTE
+	
 	nokia_lcd_render();
 }
 
@@ -138,7 +145,7 @@ void inserePacman()
 {
 	for (int x = 0; x < 5; x++)
 	{
-		for (int y = 0; y < 10; y++)
+		for (int y = 0; y < 14; y++)
 		{
 			if (gameMap[x][y] == 3)
 			{
@@ -149,13 +156,13 @@ void inserePacman()
 	gameMap[posX][posY] = pacman;
 }
 
-void telaInicio()
-{
-	nokia_lcd_clear();
-	nokia_lcd_set_cursor(13, 15);
-	nokia_lcd_write_string("Inicie o jogo Apertando 'W'",1);
-	nokia_lcd_render();
-}
+// void telaInicio()
+// {
+// 	nokia_lcd_clear();
+// 	nokia_lcd_set_cursor(13, 15);
+// 	nokia_lcd_write_string("Inicie o jogo Apertando 'W'",1);
+// 	nokia_lcd_render();
+// }
 
 int main(void)
 {
@@ -177,12 +184,16 @@ int main(void)
 	nokia_lcd_init();  // inicia painel
 	nokia_lcd_clear(); // clear no painel
 	nokia_lcd_custom(1, glyph);
-	telaInicio();
-	if(botaoW() == 1){
+	// telaInicio();
+	
+			
+
+	if (botaoW() == 1)
+	{
 		nokia_lcd_clear();
-		printaTela();	
+		printaTela();
 	}
-	//printaTela();
+	// printaTela();
 	inserePacman(posX, posY);
 	printaTela();
 	int morte = 0;
@@ -247,10 +258,10 @@ Fazer:
 	Sistema de Leds  : Morte = Led vermelho acende por 5 s
 					   Vitória = Led verde acende por 5 s
 					   Amarelo/Azul = ?
-					 
+
 	Botão Start
 	Arrumar tela de inicio
-	Contabilizar tempo com timer   
+	Contabilizar tempo com timer
 
 Colocar:
 	Timer

@@ -28,9 +28,15 @@
 
 uint8_t glyph[] = {0b00010000, 0b00100100, 0b11100000, 0b00100100, 0b00010000};
 uint8_t gameMap[5][14] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
-						  {1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1},
-						  {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1},
-						  {1, 0, 2, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1},
+						  {1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+						  {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+						  {1, 0, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+						  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+
+uint8_t gameMap2[5][14] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
+						  {1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+						  {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+						  {1, 0, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
 						  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 int i = 0;
 int j = 0;
@@ -43,6 +49,11 @@ double tempo = 0.0;
 int posX = 2;
 int posY = 0;
 int contadorms = 0;
+int pontos = 0;
+int vidas= 3;
+int morte = 0;
+int derrota = 0;
+int temp= 0;
 
 int botaoA()
 {
@@ -109,7 +120,7 @@ void printaTela()
 		{
 			if (gameMap[x][y] == 0)
 			{
-				nokia_lcd_write_string(" ", 1); // chao
+				nokia_lcd_write_string(".", 1); // comiodinha
 			}
 			if (gameMap[x][y] == 1)
 			{
@@ -124,11 +135,11 @@ void printaTela()
 			if (gameMap[x][y] == 3)
 			{
 				nokia_lcd_write_string("@", 1); // pacman
-				// nokia_lcd_drawcircle(1,1,3);
+				//nokia_lcd_drawcircle(getX(),getY(),2);
 			}
 			if (gameMap[x][y] == 4)
 			{
-				nokia_lcd_write_string(",", 1); // comidinha
+				nokia_lcd_write_string(" ", 1); // espaço
 			}
 		}
 	}
@@ -149,20 +160,52 @@ void inserePacman()
 		{
 			if (gameMap[x][y] == 3)
 			{
-				gameMap[x][y] = 0;
+				gameMap[x][y] = 4;
 			}
 		}
 	}
 	gameMap[posX][posY] = pacman;
 }
 
-// void telaInicio()
-// {
-// 	nokia_lcd_clear();
-// 	nokia_lcd_set_cursor(13, 15);
-// 	nokia_lcd_write_string("Inicie o jogo Apertando 'W'",1);
-// 	nokia_lcd_render();
-// }
+
+
+void telaInicio()
+{
+	nokia_lcd_clear();
+	nokia_lcd_set_cursor(13, 15);
+	nokia_lcd_write_string("Inicie o jogo Apertando 'W'",1);
+	nokia_lcd_render();
+}
+
+void telaFim(){
+
+	if(derrota == 1){
+		nokia_lcd_write_string("Você Perdeu o Jogo!", 1);
+		nokia_lcd_write_string("Pontuação : ", 1);
+		nokia_lcd_write_string("Tempo de jogo : ", 1);
+	}else{
+		nokia_lcd_write_string("Você ganhou o jogo !", 1);
+		nokia_lcd_write_string("Pontuação : ", 1);
+		nokia_lcd_write_string("Tempo de Jogo : ", 1);
+	}
+	
+}
+
+void mortePacman(){
+	nokia_lcd_clear();
+	posX= 2;
+	posY= 0;
+	inserePacman();
+	printaTela();
+	pontos= 0;
+	vidas--;
+	if(vidas == 0){
+		//reiniciaJogo();
+		vidas = 3;
+	}
+
+}
+
 
 int main(void)
 {
@@ -184,69 +227,76 @@ int main(void)
 	nokia_lcd_init();  // inicia painel
 	nokia_lcd_clear(); // clear no painel
 	nokia_lcd_custom(1, glyph);
-	// telaInicio();
-	
-			
-
-	if (botaoW() == 1)
-	{
+	/*telaInicio();
+	while(botaoW() != 0){
 		nokia_lcd_clear();
 		printaTela();
+		inserePacman(posX, posY);
+		printaTela();
+		temp =1;
 	}
-	// printaTela();
-	inserePacman(posX, posY);
-	printaTela();
-	int morte = 0;
+	*/
 
-	while (1)
+	while (temp == 1)
 	{
-
 		if (botaoW() == 1)
 		{
-			if (gameMap[posX][posY - 1] != 1)
-			{
+			if (gameMap[posX][posY - 1] != 1 && gameMap[posX][posY - 1] != 2)
+			{ // ldc = 84 x 48 
+				if(gameMap[posX][posY - 1] == 0){
+					pontos++;
+				}
 				posY--;
 				inserePacman();
 				printaTela();
+			}else if(gameMap[posX][posY - 1] == 2){
+				mortePacman();
 			}
 		}
 		else if (botaoA() == 1)
 		{
-			if (gameMap[posX - 1][posY] != 1)
+			if (gameMap[posX - 1][posY] != 1 && gameMap[posX - 1][posY] != 2)
 			{
+				if(gameMap[posX - 1][posY] == 0){
+					pontos++;
+				}
 				posX--;
 				inserePacman();
 				printaTela();
+			}else if(gameMap[posX-1][posY] == 2){
+				mortePacman();
 			}
 		}
 		else if (botaoS() == 1)
 		{
-			if (gameMap[posX][posY + 1] != 1)
+			if (gameMap[posX][posY + 1] != 1 && gameMap[posX][posY + 1] != 2)
 			{
+				if(gameMap[posX][posY + 1] == 0){
+					pontos++;
+				}
 				posY++;
 				inserePacman();
 				printaTela();
+			}else if(gameMap[posX][posY+1] == 2){
+				mortePacman();
 			}
 		}
 		else if (botaoD() == 1)
 		{
-			if (gameMap[posX + 1][posY] != 1)
+			if (gameMap[posX + 1][posY] != 1 && gameMap[posX + 1][posY] != 2)
 			{
+				if(gameMap[posX + 1][posY] == 0){
+					pontos++;
+				}
 				posX++;
 				inserePacman();
 				printaTela();
-			}
-			if (morte == 1)
-			{
-				_delay_ms(10000);
-				printaTela();
-				PORTD |= (1 << PD2);
-				_delay_ms(5000);
-				morte = 0;
+			}else if(gameMap[posX + 1][posY] == 2){
+				mortePacman();
 			}
 		}
 	}
-}
+	}
 
 /*
 Fazer:

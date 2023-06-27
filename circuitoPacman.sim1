@@ -40,19 +40,13 @@
 
 <item itemtype="Resistor" CircId="Resistor-238" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="572,484" rotation="0" hflip="1" vflip="1" label="Resistor-238" idLabPos="-16,-24" labelrot="0" valLabPos="-14,6" valLabRot="0" Resistance="100 Ω" />
 
-<item itemtype="Resistor" CircId="Resistor-239" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="564,512" rotation="0" hflip="1" vflip="1" label="Resistor-239" idLabPos="-16,-24" labelrot="0" valLabPos="-13,7" valLabRot="0" Resistance="100 Ω" />
+<item itemtype="Led" CircId="Led-245" mainComp="false" Show_id="false" Show_Val="false" Pos="512,484" rotation="180" hflip="1" vflip="1" label="Led-245" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Red" Grounded="false" Threshold="1.8 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
 
-<item itemtype="Led" CircId="Led-245" mainComp="false" Show_id="false" Show_Val="false" Pos="512,484" rotation="180" hflip="1" vflip="1" label="Led-245" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Green" Grounded="false" Threshold="3.5 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
-
-<item itemtype="Led" CircId="Led-246" mainComp="false" Show_id="false" Show_Val="false" Pos="512,536" rotation="180" hflip="1" vflip="1" label="Led-246" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Red" Grounded="false" Threshold="1.8 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
-
-<item itemtype="Led" CircId="Led-247" mainComp="false" Show_id="false" Show_Val="false" Pos="512,512" rotation="180" hflip="1" vflip="1" label="Led-247" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Yellow" Grounded="false" Threshold="2.4 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
+<item itemtype="Led" CircId="Led-246" mainComp="false" Show_id="false" Show_Val="false" Pos="512,536" rotation="180" hflip="1" vflip="1" label="Led-246" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Green" Grounded="false" Threshold="3.5 V" MaxCurrent="0.03 A" Resistance="0.6 Ω" />
 
 <item itemtype="Ground" CircId="Ground-248" mainComp="false" Show_id="false" Show_Val="false" Pos="464,484" rotation="90" hflip="1" vflip="1" label="Ground-248" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
 <item itemtype="Ground" CircId="Ground-277" mainComp="false" Show_id="false" Show_Val="false" Pos="464,536" rotation="90" hflip="1" vflip="1" label="Ground-277" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
-
-<item itemtype="Ground" CircId="Ground-278" mainComp="false" Show_id="false" Show_Val="false" Pos="464,512" rotation="90" hflip="1" vflip="1" label="Ground-278" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
 
 <item itemtype="Node" CircId="Node-85" mainComp="false" Pos="504,568" />
 
@@ -110,19 +104,13 @@
 
 <item itemtype="Connector" uid="connector-302" startpinid="mega328-1-PORTD4" endpinid="Resistor-237-rPin" pointList="608,524,588,524,588,536" />
 
-<item itemtype="Connector" uid="connector-303" startpinid="mega328-1-PORTD3" endpinid="Resistor-239-rPin" pointList="608,516,580,516,580,512" />
-
 <item itemtype="Connector" uid="connector-304" startpinid="mega328-1-PORTD2" endpinid="Resistor-238-rPin" pointList="608,508,588,508,588,484" />
 
 <item itemtype="Connector" uid="connector-305" startpinid="Ground-277-Gnd" endpinid="Led-246-rPin" pointList="480,536,496,536" />
 
-<item itemtype="Connector" uid="connector-306" startpinid="Ground-278-Gnd" endpinid="Led-247-rPin" pointList="480,512,496,512" />
-
 <item itemtype="Connector" uid="connector-307" startpinid="Ground-248-Gnd" endpinid="Led-245-rPin" pointList="480,484,496,484" />
 
 <item itemtype="Connector" uid="connector-308" startpinid="Led-245-lPin" endpinid="Resistor-238-lPin" pointList="528,484,556,484" />
-
-<item itemtype="Connector" uid="connector-309" startpinid="Led-247-lPin" endpinid="Resistor-239-lPin" pointList="528,512,548,512" />
 
 <item itemtype="Connector" uid="connector-310" startpinid="Led-246-lPin" endpinid="Resistor-237-lPin" pointList="528,536,556,536" />
 

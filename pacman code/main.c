@@ -28,78 +28,41 @@
 #include <util/delay.h>
 #include "nokia5110.h"
 #include <stdlib.h>
+void telaVitoria();
+void telaDerrota();
 
 uint8_t glyph[] = {0b00010000, 0b00100100, 0b11100000, 0b00100100, 0b00010000};
-uint8_t gameMap[6][14] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
+uint8_t gameMap[5][14] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
 						  {1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1},
-						  {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						  {1, 4, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1},
 						  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
 						  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 int i = 0;
 int j = 0;
-uint8_t chao = 0;	  // espaço -> .
+uint8_t comida = 0;	  // espaco -> .
 uint8_t parede = 1;	  // /
 uint8_t fantasma = 2; // $
 uint8_t pacman = 3;	  // circulo
-uint8_t comida = 4;	  // 0
+uint8_t nada = 4;	  // nadas
 double tempo = 0.0;
-int itemAtual = 0;
-int contadorms2 = 0;
-int posX = 2;
-int posY = 0;
+int itemProx = 0;
 int contadorms = 0;
+int posX = 2;
+int posY = 1;
+int pontosM = 0;
 int pontos = 0;
 int vidas = 3;
 int morte = 0;
 int temp = 0;
-<<<<<<< HEAD
 char msg[30];
 int timer = 0;
-=======
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
-
-void restart()
-{
-	// pontos = 0;
-	// posX = 2;
-	// posY = 0;
-	// vidas = 3;
-	// inserePacman();
-<<<<<<< HEAD
-	uint16_t gameStartMap[5][14] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
-									{1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1},
-									{0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-									{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-									{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
-
-	for (int i = 0; i < 5; i++)
-	{
-		for (int j = 0; j < 14; j++)
-		{
-			gameMap[i][j] = gameStartMap[i][j];
-		}
-	}
-
-	vidas = 3;
-	pontos = 0;
-	sei();
-	// gameMap = gameStartMap;
-=======
-	// uint8_t gameMap[6][14] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
-	// 						  {1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-	// 						  {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-	// 						  {1, 0, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-	// 						  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	// 						  {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5}};
-	vidas = 3;
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
-}
-
+int winStreak = 0;
+// BOTOES
 int botaoA()
 {
-	if (PIND & (1 << PD5))
+	if (PIND & (1 << PD6))
 	{
-		while (PIND & (1 << PD5))
+		while (PIND & (1 << PD6))
 		{
 			_delay_ms(10);
 		}
@@ -108,27 +71,11 @@ int botaoA()
 	return 0;
 }
 
-int pontosMax()
-{
-	int pontosMax = 0;
-	for (int i = 0; i < 5; i++)
-	{
-		for (int j = 0; j < 14; j++)
-		{
-			if (gameMap[i][j] == 0)
-			{
-				pontosMax++;
-			}
-		}
-	}
-	return pontosMax;
-}
-
 int botaoW()
 {
-	if (PIND & (1 << PD6))
+	if (PIND & (1 << PD5))
 	{
-		while (PIND & (1 << PD6))
+		while (PIND & (1 << PD5))
 		{
 			_delay_ms(10);
 		}
@@ -162,6 +109,24 @@ int botaoD()
 	}
 	return 0;
 }
+// METODOS
+int pontosMax()
+{
+	int pontosMax = 0;
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = 0; j < 14; j++)
+		{
+			if (gameMap[i][j] == 0)
+			{
+				pontosMax++;
+			}
+		}
+	}
+	return pontosMax * 10;
+}
+
+
 void inserePacman()
 {
 	for (int x = 0; x < 5; x++)
@@ -176,24 +141,44 @@ void inserePacman()
 	}
 	gameMap[posX][posY] = pacman;
 }
+void mortePacman()
+{
+	nokia_lcd_clear();
+	posX = 2;
+	posY = 1;
+	vidas--;
+	inserePacman();
+	PORTD |= (1<<PD2);
+	_delay_ms(100);
+	PORTD &= ~(1<<PD2);
+	_delay_ms(100);
+	PORTD |= (1<<PD2);
+	_delay_ms(100);
+	PORTD &= ~(1<<PD2);
+	_delay_ms(100);
+	PORTD |= (1<<PD2);
+	_delay_ms(100);
+	PORTD &= ~(1<<PD2);
+	_delay_ms(100);
+	PORTD |= (1<<PD2);
+	_delay_ms(100);
+	PORTD &= ~(1<<PD2);
+	_delay_ms(100);
+	PORTD |= (1<<PD2);
+	_delay_ms(100);
+	PORTD &= ~(1<<PD2);
+	_delay_ms(100);
+}
 
-void start()
+void AtualizaTela()
 {
 	nokia_lcd_clear();
 	int colTela = 0;
-<<<<<<< HEAD
 	for (int x = 0; x < 5; x++)
 	{
 		colTela = x * 9;
 		nokia_lcd_set_cursor(0, colTela);
 		nokia_lcd_drawrect(0, 0, 83, 43);
-=======
-	for (int x = 0; x < 6; x++)
-	{
-		colTela = x * 9;
-		nokia_lcd_set_cursor(0, colTela);
-
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
 		for (int y = 0; y < 14; y++)
 		{
 			if (gameMap[x][y] == 0)
@@ -202,14 +187,10 @@ void start()
 			}
 			if (gameMap[x][y] == 1)
 			{
-<<<<<<< HEAD
 				if ((x != 0) || (y != 0))
 				{
 					nokia_lcd_write_string("/", 1);
 				}
-=======
-				nokia_lcd_write_string("/", 1);
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
 			}
 			if (gameMap[x][y] == 2)
 			{
@@ -223,18 +204,6 @@ void start()
 			{
 				nokia_lcd_write_string(" ", 1); // espaço
 			}
-<<<<<<< HEAD
-=======
-			if (gameMap[x][y] == 5)
-			{
-				if ((x == 5) && (y == 0))
-				{
-					// char score[8] = "score :";
-					// strcat(score, pontos);
-					nokia_lcd_write_string("score :", 1);
-				}
-			}
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
 		}
 	}
 	nokia_lcd_render();
@@ -242,171 +211,181 @@ void start()
 
 void telaInicio()
 {
-	nokia_lcd_set_cursor(13, 15);
-	nokia_lcd_write_string("Inicie o jogo Apertando 'W'", 1);
+	nokia_lcd_clear();
+	nokia_lcd_set_cursor(0, 10);
+	nokia_lcd_write_string("Inicie o jogo", 1);
+	nokia_lcd_set_cursor(0, 20);
+	nokia_lcd_write_string("Apertando 'W'", 1);
 	nokia_lcd_render();
+	posX = 2;
+	posY = 1;
+	inserePacman();
 }
 
-void telaDerrota()
+int verificaRadarPac()
 {
-<<<<<<< HEAD
-	cli();
-	nokia_lcd_clear();
-	nokia_lcd_set_cursor(10, 20);
-	nokia_lcd_write_string("Voce Perdeu!", 1);
-	nokia_lcd_render();
-	_delay_ms(4000);
-	nokia_lcd_clear();
-	nokia_lcd_set_cursor(20, 20);
-	sprintf(msg, "Score %d", pontos);
-	nokia_lcd_write_string(msg, 1);
-	nokia_lcd_render();
-	_delay_ms(3000);
-	restart();
-=======
-	nokia_lcd_clear();
-	nokia_lcd_write_string("Você Perdeu o Jogo!", 1);
-	nokia_lcd_set_cursor(13, 13);
-	nokia_lcd_write_string("Pontuação : ", 1);
-	nokia_lcd_set_cursor(13, 24);
-	nokia_lcd_write_string("Tempo de jogo : ", 1);
-	nokia_lcd_render();
-	_delay_ms(2000);
-	restart();
-	telaInicio();;
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
-}
-
-void telaVitoria()
-{
-<<<<<<< HEAD
-	cli();
-	nokia_lcd_clear();
-	nokia_lcd_set_cursor(10, 20);
-	nokia_lcd_write_string("Voce Ganhou", 1);
-	nokia_lcd_set_cursor(10, 30);	
-	sprintf(msg, "Score %d", pontos);
-	nokia_lcd_write_string(msg, 1);
-	nokia_lcd_set_cursor(10, 40);
-	sprintf(msg, "Time %d", timer);
-	nokia_lcd_write_string(msg, 1);
-	nokia_lcd_render();
-	_delay_ms(4000);
-	nokia_lcd_clear();
-	_delay_ms(4000);
-	nokia_lcd_set_cursor(20, 10);
-	nokia_lcd_render();
-	restart();
+	if (gameMap[posX][posY - 1] == 2)
+	{
+		return 1;
+	}
+	if (gameMap[posX][posY + 1] == 2)
+	{
+		return 1;
+	}
+	if (gameMap[posX - 1][posY] == 2)
+	{
+		return 1;
+	}
+	if (gameMap[posX + 1][posY] == 2)
+	{
+		return 1;
+	}
+	return 0;
 }
 
 void moveFantasma()
 {
 	int mobProxX = 0;
 	int mobProxY = 0;
-	int mobAtualX = 0;
-	int mobAtualY = 0;
-	int itemAtual = 0;
-	
-		for (int x = 0; x < 5; x++)
+	int itemProx = 4;
+	int temp= 0;
+	for (int x = 0; x < 5; x++)
+	{
+		for (int y = 0; y < 14; y++)
 		{
-			for (int y = 0; y < 14; y++)
+			if (gameMap[x][y] == 2)
 			{
-				if (gameMap[x][y] == 2)
+
+				if (verificaRadarPac() == 1)
+				{
+					itemProx = gameMap[mobProxX][mobProxY];
+					if (gameMap[mobProxX][mobProxY] != 1)
+					{
+						gameMap[mobProxX][mobProxY] = gameMap[x][y];
+						gameMap[x][y] = itemProx;
+					}
+					mortePacman();
+					AtualizaTela();
+					if (vidas == 0)
+					{
+						telaDerrota();
+					}
+				}
+				if (posY < 7)
+				{
+					mobProxX = x;
+					mobProxY = y - 1;
+					temp=-1;
+				}
+				else if (posY > 7)
+				{
+					mobProxX = x;
+					mobProxY = y + 1;
+					temp= 1;
+				}
+				else
 				{
 					mobProxX = x;
 					mobProxY = y;
-					mobAtualX = x;
-					mobAtualY = y;
-
-					if (mobProxX < posX)
-					{
-						mobProxX++;
-					}
-					else
-					{
-						mobProxX--;
-					}
-					if (mobProxY < posY)
-					{
-						mobProxY++;
-					}
-					else
-					{
-						mobProxY--;
-					}
-					if (gameMap[mobProxX][mobProxY] != 1)
-					{
-						itemAtual = gameMap[mobProxX][mobProxY];
-						if(itemAtual != 3){
-						gameMap[mobAtualX][mobAtualY] = itemAtual;
-						}else{
-							gameMap[mobAtualX][mobAtualY] = 0;
-						}
-
-						gameMap[mobProxX][mobProxY] = 2;
-					}
-					if (gameMap[mobProxX][mobProxY] == 3)
-					{
-						vidas--;
-						posX = 2;
-						posY = 0;
-					}
-					start();
+					temp = 0;
 				}
-			
+
+				itemProx = gameMap[mobProxX][mobProxY];
+				if (gameMap[mobProxX][mobProxY] != 1)
+				{
+					gameMap[mobProxX][mobProxY] = gameMap[x][y];
+					gameMap[x][y] = itemProx;
+				}
+				
+			}
+		}
+		AtualizaTela();
+	}
+}
+
+void restart()
+{
+	uint16_t gameAtualizaTelaMap[5][14] =  {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
+						  					{1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1},
+						  					{1, 4, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1},
+						  					{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+						  					{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = 0; j < 14; j++)
+		{
+			gameMap[i][j] = gameAtualizaTelaMap[i][j];
 		}
 	}
-	start();
-=======
-	nokia_lcd_clear();
-	nokia_lcd_write_string("Você Ganhou o Jogo!", 1);
-	nokia_lcd_set_cursor(13, 13);
-	nokia_lcd_write_string("Pontuação : ", 1);
-	nokia_lcd_set_cursor(13, 24);
-	nokia_lcd_write_string("Tempo de jogo : ", 1);
-	nokia_lcd_render();
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
-}
 
-void mortePacman()
-{
-	nokia_lcd_clear();
-	posX = 2;
-	posY = 0;
-<<<<<<< HEAD
-	vidas--;
-	start();
-}
-
-int verificaRadarPac(){
-	if(gameMap[posX][posY - 1] == 2){
-		return 1;
-	}
-	if(gameMap[posX ][posY + 1] == 2){
-		return 1;
-	}
-	if(gameMap[posX - 1][posY] == 2){
-		return 1;
-	}
-	if(gameMap[posX + 1][posY] == 2){
-		return 1;
-	}
-	return 0;
-=======
+	vidas = 3;
 	pontos = 0;
-	vidas--;
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
+	pontosM = pontos + pontosMax();
+	posX = 2;
+	posY = 1;
+	inserePacman();
+	AtualizaTela();
 }
 
-int gameOver()
+void telaVitoria()
 {
-	if (vidas == 0)
-	{
-		// vidas =3;
-		return 1;
-	}
-	return 0;
+	cli();
+	winStreak++;
+	PORTD |= (1 << PD4);
+	nokia_lcd_clear();
+	nokia_lcd_set_cursor(10, 10);
+	nokia_lcd_write_string("Voce Ganhou", 1);
+	nokia_lcd_set_cursor(10, 20);
+	sprintf(msg, "Score %d", pontos);
+	nokia_lcd_write_string(msg, 1);
+	nokia_lcd_set_cursor(10, 30);
+	sprintf(msg, "Time %d", timer);
+	nokia_lcd_write_string(msg, 1);
+	nokia_lcd_set_cursor(10, 40);
+	sprintf(msg, "WS %d", winStreak);
+	nokia_lcd_write_string(msg, 1);
+	nokia_lcd_render();
+	_delay_ms(4000);
+	PORTD &= ~(1 << PD2);
+	pontos = pontos + pontosM;
+	nokia_lcd_clear();
+	restart();
+	posX = 2;
+	posY = 1;
+	inserePacman();
+	AtualizaTela();
 }
+
+void telaDerrota()
+{
+	cli();
+	PORTD |= (1 << PD2);
+	nokia_lcd_clear();
+	nokia_lcd_set_cursor(10, 10);
+	nokia_lcd_write_string("Voce Perdeu!", 1);
+	nokia_lcd_set_cursor(10, 20);
+	sprintf(msg, "Score %d", pontos);
+	nokia_lcd_write_string(msg, 1);
+	nokia_lcd_set_cursor(10, 30);
+	sprintf(msg, "Time %d", timer);
+	nokia_lcd_write_string(msg, 1);
+	nokia_lcd_set_cursor(10, 40);
+	sprintf(msg, "WS %d", winStreak);
+	winStreak = 0;
+	nokia_lcd_write_string(msg, 1);
+	nokia_lcd_render();
+	_delay_ms(4000);
+	PORTD &= ~(1 << PD2);
+	pontos = 0;
+	nokia_lcd_clear();
+	restart();
+	posX = 2;
+	posY = 1;
+	inserePacman();
+	AtualizaTela();
+}
+
 
 int main(void)
 {
@@ -428,7 +407,6 @@ int main(void)
 	nokia_lcd_init();  // inicia painel
 	nokia_lcd_clear(); // clear no painel
 	nokia_lcd_custom(1, glyph);
-<<<<<<< HEAD
 
 	TCCR1B |= (1 << WGM12);
 
@@ -437,72 +415,42 @@ int main(void)
 
 	TIMSK1 |= (1 << OCIE1A);
 
-	sei();
-
-	temp = 0;
-	int pontosM;
-
-	start();
-	contadorms2 = 0;
+	contadorms = 0;
+	pontosM = pontosMax();
+	telaInicio();
+	int contItera = 0;
 	while (1)
 	{
-		pontosM = pontosMax();
+		if (botaoW() && contItera == 0)
+		{
+			inserePacman();
+			AtualizaTela();
+			contItera++;
+		}
 		sei();
 		_delay_ms(1);
-		contadorms2++;
-		if (contadorms2 == 1000)
+		contadorms++;
+		if (contadorms == 1000)
 		{
 			moveFantasma();
-			contadorms2 = 0;
+			contadorms = 0;
 		}
-
-		if (botaoW() == 1)
+		if (botaoA() == 1)
 		{
 			if (gameMap[posX][posY - 1] != 1 && gameMap[posX][posY - 1] != 2)
 			{
 				if (gameMap[posX][posY - 1] == 0)
 				{
-					pontos++;
+					pontos += 10;
 					if (pontos == pontosM)
 					{ // VITORIA
 						telaVitoria();
 						timer = 0;
 					}
 				}
-				if (contadorms2 == 1000)
-				{
-					moveFantasma();
-					contadorms2 = 0;
-=======
-	/*telaInicio();
-	while(botaoW() != 0){
-		nokia_lcd_clear();
-		start();
-		inserePacman(posX, posY);
-		start();
-		temp =1;
-	}
-	*/
-	temp = 0;
-	start();
-	while (1)
-	{	
-		if (botaoW() == 1)
-		{
-			if (gameMap[posX][posY - 1] != 1 && gameMap[posX][posY - 1] != 2)
-			{ 
-				if (gameMap[posX][posY - 1] == 0)
-				{
-					pontos++;
-					if (pontos == pontosMax())
-					{ // VITORIA
-						telaVitoria();
-					}
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
-				}
 				posY--;
 				inserePacman();
-				start();
+				AtualizaTela();
 			}
 			else if (gameMap[posX][posY - 1] == 2)
 			{
@@ -510,43 +458,28 @@ int main(void)
 				if (vidas == 0)
 				{
 					telaDerrota();
-<<<<<<< HEAD
-					timer=0;
+					timer = 0;
 					pontos = 0;
 					timer = 0;
-=======
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
 				}
 			}
 		}
-		else if (botaoA() == 1)
+		else if (botaoW() == 1)
 		{
 			if (gameMap[posX - 1][posY] != 1 && gameMap[posX - 1][posY] != 2)
 			{
 				if (gameMap[posX - 1][posY] == 0)
 				{
-					pontos++;
-<<<<<<< HEAD
+					pontos += 10;
 					if (pontos == pontosM)
 					{ // VITORIA
 						telaVitoria();
 						timer = 0;
 					}
 				}
-				if (contadorms2 == 1000)
-				{
-					moveFantasma();
-					contadorms2 = 0;
-=======
-					if (pontos == pontosMax())
-					{ // VITORIA
-						telaVitoria();
-					}
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
-				}
 				posX--;
 				inserePacman();
-				start();
+				AtualizaTela();
 			}
 			else if (gameMap[posX - 1][posY] == 2)
 			{
@@ -555,11 +488,8 @@ int main(void)
 				if (vidas == 0)
 				{
 					telaDerrota();
-<<<<<<< HEAD
 					pontos = 0;
 					timer = 0;
-=======
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
 				}
 			}
 		}
@@ -569,8 +499,7 @@ int main(void)
 			{
 				if (gameMap[posX][posY + 1] == 0)
 				{
-					pontos++;
-<<<<<<< HEAD
+					pontos += 10;
 					if (pontos == pontosM)
 					{ // VITORIA
 						telaVitoria();
@@ -578,20 +507,9 @@ int main(void)
 						pontos = 0;
 					}
 				}
-				if (contadorms2 == 1000)
-				{
-					moveFantasma();
-					contadorms2 = 0;
-=======
-					if (pontos == pontosMax())
-					{ // VITORIA
-						telaVitoria();
-					}
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
-				}
 				posY++;
 				inserePacman();
-				start();
+				AtualizaTela();
 			}
 			else if (gameMap[posX][posY + 1] == 2)
 			{
@@ -599,11 +517,8 @@ int main(void)
 				if (vidas == 0)
 				{
 					telaDerrota();
-<<<<<<< HEAD
 					timer = 0;
 					pontos = 0;
-=======
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
 				}
 			}
 		}
@@ -613,8 +528,7 @@ int main(void)
 			{
 				if (gameMap[posX + 1][posY] == 0)
 				{
-					pontos++;
-<<<<<<< HEAD
+					pontos += 10;
 					if (pontos == pontosM)
 					{ // VITORIA
 						telaVitoria();
@@ -622,34 +536,18 @@ int main(void)
 						pontos = 0;
 					}
 				}
-				if (contadorms2 == 1000)
-				{
-					moveFantasma();
-					contadorms2 = 0;
-=======
-					if (pontos == pontosMax())
-					{ // VITORIA
-						telaVitoria();
-					}
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
-				}
 				posX++;
 				inserePacman();
-				start();
+				AtualizaTela();
 			}
 			else if (gameMap[posX + 1][posY] == 2)
 			{
 				mortePacman();
 				if (vidas == 0)
 				{
-<<<<<<< HEAD
 					telaDerrota();
 					timer = 0;
 					pontos = 0;
-=======
-					nokia_lcd_clear();
-					telaDerrota();
->>>>>>> efb76dcdbb2fc142e6394b6dd9ae0a3ec5871387
 				}
 			}
 		}
@@ -666,18 +564,11 @@ ISR(TIMER1_COMPA_vect)
 Fazer:
 	MovimentaFastasmas()
 	Sistema de Morte
-	SuperPoderes
 	Contador de tempo e de pontos
 	Tela Final
-	Sistema de Leds  : Morte = Led vermelho acende por 5 s
-					   Vitória = Led verde acende por 5 s
-					   Amarelo/Azul = ?
-
-	X Botão Start
-	Arrumar tela de inicio
-
+					   
 Colocar:
-	
+
 	X Circulo e Retângulos na lib do nokia pro jogo ficar + bonito
 
 */

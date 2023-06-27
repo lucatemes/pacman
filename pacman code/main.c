@@ -97,7 +97,7 @@ int botaoS()
 	return 0;
 }
 
-int botaoD()
+int botaoD()//
 {
 	if (PINB & (1 << PB0))
 	{
@@ -110,7 +110,7 @@ int botaoD()
 	return 0;
 }
 // METODOS
-int pontosMax()
+int pontosMax() //
 {
 	int pontosMax = 0;
 	for (int i = 0; i < 5; i++)
@@ -126,7 +126,6 @@ int pontosMax()
 	return pontosMax * 10;
 }
 
-
 void inserePacman()
 {
 	for (int x = 0; x < 5; x++)
@@ -141,7 +140,7 @@ void inserePacman()
 	}
 	gameMap[posX][posY] = pacman;
 }
-void mortePacman()
+void mortePacman()//
 {
 	nokia_lcd_clear();
 	posX = 2;
@@ -170,7 +169,7 @@ void mortePacman()
 	_delay_ms(100);
 }
 
-void AtualizaTela()
+void AtualizaTela()//
 {
 	nokia_lcd_clear();
 	int colTela = 0;

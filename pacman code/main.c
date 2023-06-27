@@ -22,6 +22,8 @@
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 */
+
+// "PACMAN" CODE BY Bernardo Zamin,Leonardo Oliveira,Luca Temex,
 #include <stdio.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -57,6 +59,7 @@ int temp = 0;
 char msg[30];
 int timer = 0;
 int winStreak = 0;
+int derrota = 0;
 // BOTOES
 int botaoA()
 {
@@ -97,7 +100,7 @@ int botaoS()
 	return 0;
 }
 
-int botaoD()//
+int botaoD() //
 {
 	if (PINB & (1 << PB0))
 	{
@@ -140,36 +143,36 @@ void inserePacman()
 	}
 	gameMap[posX][posY] = pacman;
 }
-void mortePacman()//
+void mortePacman() //
 {
 	nokia_lcd_clear();
 	posX = 2;
 	posY = 1;
 	vidas--;
 	inserePacman();
-	PORTD |= (1<<PD2);
+	PORTD |= (1 << PD2);
 	_delay_ms(100);
-	PORTD &= ~(1<<PD2);
+	PORTD &= ~(1 << PD2);
 	_delay_ms(100);
-	PORTD |= (1<<PD2);
+	PORTD |= (1 << PD2);
 	_delay_ms(100);
-	PORTD &= ~(1<<PD2);
+	PORTD &= ~(1 << PD2);
 	_delay_ms(100);
-	PORTD |= (1<<PD2);
+	PORTD |= (1 << PD2);
 	_delay_ms(100);
-	PORTD &= ~(1<<PD2);
+	PORTD &= ~(1 << PD2);
 	_delay_ms(100);
-	PORTD |= (1<<PD2);
+	PORTD |= (1 << PD2);
 	_delay_ms(100);
-	PORTD &= ~(1<<PD2);
+	PORTD &= ~(1 << PD2);
 	_delay_ms(100);
-	PORTD |= (1<<PD2);
+	PORTD |= (1 << PD2);
 	_delay_ms(100);
-	PORTD &= ~(1<<PD2);
+	PORTD &= ~(1 << PD2);
 	_delay_ms(100);
 }
 
-void AtualizaTela()//
+void AtualizaTela() //
 {
 	nokia_lcd_clear();
 	int colTela = 0;
@@ -216,9 +219,15 @@ void telaInicio()
 	nokia_lcd_set_cursor(0, 20);
 	nokia_lcd_write_string("Apertando 'W'", 1);
 	nokia_lcd_render();
+	while(1){
+		if(botaoW()){
+			break;
+		}
+	}
 	posX = 2;
 	posY = 1;
 	inserePacman();
+	AtualizaTela();
 }
 
 int verificaRadarPac()
@@ -247,7 +256,8 @@ void moveFantasma()
 	int mobProxX = 0;
 	int mobProxY = 0;
 	int itemProx = 4;
-	int temp= 0;
+	// int itemAnterior = 0;
+	int temp = 0;
 	for (int x = 0; x < 5; x++)
 	{
 		for (int y = 0; y < 14; y++)
@@ -260,27 +270,59 @@ void moveFantasma()
 					itemProx = gameMap[mobProxX][mobProxY];
 					if (gameMap[mobProxX][mobProxY] != 1)
 					{
-						gameMap[mobProxX][mobProxY] = gameMap[x][y];
-						gameMap[x][y] = itemProx;
+						if (posY < 9)
+						{
+							if ((gameMap[x][y + 1] == 0) && (itemProx == 4) && (gameMap[x][y] == 2))
+							{
+								gameMap[x][y] = 0;
+								gameMap[x][y - 1] = 2;
+								gameMap[mobProxX][mobProxY] = gameMap[x][y - 1];
+								AtualizaTela();
+							}
+							else
+							{
+								gameMap[mobProxX][mobProxY] = gameMap[x][y];
+								gameMap[x][y] = itemProx;
+								AtualizaTela();
+							}
+						}
+						if (posY > 9)
+						{
+							if ((gameMap[x][y - 1] == 0) && (itemProx == 4) && (gameMap[x][y] == 2))
+							{
+								gameMap[x][y] = 0;
+								gameMap[x][y + 1] = 2;
+								gameMap[mobProxX][mobProxY] = gameMap[x][y + 1];
+								AtualizaTela();
+							}
+							else
+							{
+								gameMap[mobProxX][mobProxY] = gameMap[x][y];
+								gameMap[x][y] = itemProx;
+								AtualizaTela();
+							}
+						}
 					}
 					mortePacman();
 					AtualizaTela();
 					if (vidas == 0)
 					{
 						telaDerrota();
+						timer = 0;
+						pontos = 0;
 					}
 				}
-				if (posY < 7)
+				if (posY < 9)
 				{
 					mobProxX = x;
 					mobProxY = y - 1;
-					temp=-1;
+					temp = -1;
 				}
-				else if (posY > 7)
+				else if (posY > 9)
 				{
 					mobProxX = x;
 					mobProxY = y + 1;
-					temp= 1;
+					temp = 1;
 				}
 				else
 				{
@@ -292,23 +334,55 @@ void moveFantasma()
 				itemProx = gameMap[mobProxX][mobProxY];
 				if (gameMap[mobProxX][mobProxY] != 1)
 				{
-					gameMap[mobProxX][mobProxY] = gameMap[x][y];
-					gameMap[x][y] = itemProx;
+					if (posY < 9)
+					{
+						if ((gameMap[x][y + 1] == 0) && (itemProx == 4) && (gameMap[x][y] == 2))
+						{
+							gameMap[x][y] = 0;
+							gameMap[x][y - 1] = 2;
+							gameMap[mobProxX][mobProxY] = gameMap[x][y - 1];
+							AtualizaTela();
+						}
+						else
+						{
+							gameMap[mobProxX][mobProxY] = gameMap[x][y];
+							gameMap[x][y] = itemProx;
+							AtualizaTela();
+						}
+					}
+					if (posY > 9)
+					{
+						if ((gameMap[x][y + 1] == 0) && (itemProx == 4) && (gameMap[x][y] == 2))
+						{
+							gameMap[x][y] = 0;
+							gameMap[x][y - 1] = 2;
+							gameMap[mobProxX][mobProxY] = gameMap[x][y + 1];
+							AtualizaTela();
+						}
+						else
+						{
+							gameMap[mobProxX][mobProxY] = gameMap[x][y];
+							gameMap[x][y] = itemProx;
+							AtualizaTela();
+						}
+					}
+					else
+					{
+					}
 				}
-				
 			}
 		}
-		AtualizaTela();
 	}
+	// AtualizaTela();
 }
 
 void restart()
 {
-	uint16_t gameAtualizaTelaMap[5][14] =  {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
-						  					{1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1},
-						  					{1, 4, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1},
-						  					{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-						  					{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+	uint16_t gameAtualizaTelaMap[5][14] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // Mapa do jogo
+										   {1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1},
+										   {1, 4, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1},
+										   {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+										   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
 	for (int i = 0; i < 5; i++)
 	{
@@ -317,10 +391,15 @@ void restart()
 			gameMap[i][j] = gameAtualizaTelaMap[i][j];
 		}
 	}
+	if(gameMap[2][1] != 4){
+		gameMap[2][1] = 4;
+		gameMap[2][2] = 0;
+		gameMap[1][1] = 0; 
+	}
 
 	vidas = 3;
 	pontos = 0;
-	pontosM = pontos + pontosMax();
+	pontosM = pontosMax();
 	posX = 2;
 	posY = 1;
 	inserePacman();
@@ -359,6 +438,7 @@ void telaVitoria()
 void telaDerrota()
 {
 	cli();
+	derrota = 1;
 	PORTD |= (1 << PD2);
 	nokia_lcd_clear();
 	nokia_lcd_set_cursor(10, 10);
@@ -384,7 +464,6 @@ void telaDerrota()
 	inserePacman();
 	AtualizaTela();
 }
-
 
 int main(void)
 {
@@ -416,16 +495,14 @@ int main(void)
 
 	contadorms = 0;
 	pontosM = pontosMax();
-	telaInicio();
-	int contItera = 0;
+	int cont = 0;
 	while (1)
 	{
-		if (botaoW() && contItera == 0)
-		{
-			inserePacman();
-			AtualizaTela();
-			contItera++;
+		if(cont==0){
+			telaInicio();
+			cont++;
 		}
+		
 		sei();
 		_delay_ms(1);
 		contadorms++;
@@ -558,16 +635,3 @@ ISR(TIMER1_COMPA_vect)
 	TCNT1 = 0;
 	timer++;
 }
-
-/*
-Fazer:
-	MovimentaFastasmas()
-	Sistema de Morte
-	Contador de tempo e de pontos
-	Tela Final
-					   
-Colocar:
-
-	X Circulo e Retângulos na lib do nokia pro jogo ficar + bonito
-
-*/
